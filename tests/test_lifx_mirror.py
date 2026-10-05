@@ -137,9 +137,13 @@ def test_mirror_end_to_end(emulated_mirror: EmulatedLifxDevice) -> None:
     device = resp.json()["device"]
     assert device["id"] == DEVICE_ID
     config = device["config"]
-    assert config["lifx_class"] == "MirrorLight"
-    assert config["lifx_type"] == "mirror"
-    assert config["serial"] == MIRROR_SERIAL
+    # Without detection the device is added as-is, missing these keys
+    detected = {k: config.get(k) for k in ("lifx_class", "lifx_type", "serial")}
+    assert detected == {
+        "lifx_class": "MirrorLight",
+        "lifx_type": "mirror",
+        "serial": MIRROR_SERIAL,
+    }, f"Mirror not detected, device config: {config}"
     assert config["pixel_count"] == MIRROR_LAYOUT.zone_count == 50
 
     # A 25-pixel strip virtual for each ring
